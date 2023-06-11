@@ -4,12 +4,15 @@ public class SEM {
     Matrix graph;
     int start;
     int end;
-
+    LinkedList<VertexAux> SX = new LinkedList<VertexAux>();
+    LinkedList<VertexAux> X = new LinkedList<VertexAux>();
+    
     
     public SEM(Matrix graph, int start, int end) {
         this.graph = graph;
         this.start = start;
         this.end = end;
+        X.add(new VertexAux(start));
     }
     
     public Matrix getMatAsc() {
@@ -23,8 +26,8 @@ public class SEM {
         return 0;
     }
 
-    public LinkedList<VertexAux> getPossibleChilds(VertexAux v){
-        LinkedList<VertexAux> childs = new LinkedList<VertexAux>();
+    public void getPossibleChilds(VertexAux v){
+        //LinkedList<VertexAux> SX = new LinkedList<VertexAux>();
         // get neighs
         int[] vertesNeighs = graph.getNeighs(v.getAscVertex());
         for (int i = 0; i < vertesNeighs.length; i++) {
@@ -32,20 +35,49 @@ public class SEM {
                 Matrix matTemp = getMatAsc();
                 matTemp.deleteVertexsPath(v.getPath());
                 if(matTemp.pathPossible(v.path.getLast() , i)){
-                    childs.add(new VertexAux(i, v.addVertexPath(i)));
+                    SX.add(new VertexAux(i, v.addVertexPath(i)));
                 }
             }
         }
-        return childs;
     }
 
-    public int estimation(){
-        int D = 1;
-        LinkedList<VertexAux> X = new LinkedList<VertexAux>();
-        int C = costo(start);
+    public void getSX(){
+        SX.clear();
+        for (VertexAux vertex : X) {
+            getPossibleChilds(vertex);
+        }
+    }
 
-        
-        return 0;
+    public LinkedList<VertexAux> takeRandom(LinkedList<VertexAux> list){
+        LinkedList<VertexAux> listTemp = new LinkedList<VertexAux>();
+        //TODO: take random
+
+
+        return listTemp;
+    }
+
+    public double costo(LinkedList<VertexAux> list){
+        double cost = 0;
+        for (VertexAux vertex : list) {
+            cost = cost + costo(vertex.getAscVertex());
+        }
+        return cost;
+        //TODO: review
+    }
+
+    public double estimation(){
+        double D = 1;
+        double C = costo(start);
+
+        getSX();
+        while(SX.size() > 0){
+            D = (SX.size())/(X.size())*D*1.0;
+            X = takeRandom(X);
+            C = C + costo(X)/X.size()*D*1.0;
+
+            getSX();
+        }
+        return C;
     }
 
 }
