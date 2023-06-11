@@ -19,7 +19,7 @@ public class SEM {
         return this.graph;
     }
 
-    public int costo(int vertex){
+    public int cost(int vertex){
         if (vertex == end){
             return 1;
         }
@@ -34,14 +34,14 @@ public class SEM {
             if (vertesNeighs[i] != 0) {
                 Matrix matTemp = getMatAsc();
                 matTemp.deleteVertexsPath(v.getPath());
-                if(matTemp.pathPossible(v.path.getLast() , i)){
-                    SX.add(new VertexAux(i, v.addVertexPath(i)));
-                }
+                if(matTemp.pathPossible(v.path.getLast() , vertesNeighs[i])){
+                    SX.add(new VertexAux(vertesNeighs[i], v.addVertexPath(vertesNeighs[i])));
+                } //todo else break
             }
         }
     }
 
-    public void getSX(){
+    public void calcSX(){
         SX.clear();
         for (VertexAux vertex : X) {
             getPossibleChilds(vertex);
@@ -56,10 +56,10 @@ public class SEM {
         return listTemp;
     }
 
-    public double costo(LinkedList<VertexAux> list){
+    public double cost(LinkedList<VertexAux> list){
         double cost = 0;
         for (VertexAux vertex : list) {
-            cost = cost + costo(vertex.getAscVertex());
+            cost = cost + cost(vertex.getAscVertex());
         }
         return cost;
         //TODO: review
@@ -67,15 +67,15 @@ public class SEM {
 
     public double estimation(){
         double D = 1;
-        double C = costo(start);
+        double C = cost(start);
 
-        getSX();
+        calcSX();
         while(SX.size() > 0){
             D = (SX.size())/(X.size())*D*1.0;
             X = takeRandom(X);
-            C = C + costo(X)/X.size()*D*1.0;
+            C = C + cost(X)/X.size()*D*1.0;
 
-            getSX();
+            calcSX();
         }
         return C;
     }
